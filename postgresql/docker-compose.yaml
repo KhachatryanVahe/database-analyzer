@@ -1,0 +1,30 @@
+version: '3.8'
+services:
+  postgres:
+    image: postgres-thesis
+    container_name: postgres-thesis
+    build:
+      context: ./
+      dockerfile: Dockerfile.postgres
+    environment:
+      POSTGRES_DB: thesis
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    ports:
+      - 5432:5432
+  app-build:
+    image: thesis-processing
+    container_name: build-script
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    volumes:
+      - ./:/home/app
+    working_dir: /home/app
+    entrypoint: []
+    command:
+      - bash
+      - -c
+      - |
+          sbt assembly
+          mv target/scala-2.13/app.jar app.jar

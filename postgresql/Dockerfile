@@ -1,0 +1,13 @@
+FROM amazoncorretto:19-alpine
+
+ARG SBT_VERSION=1.8.0
+
+RUN apk update \
+    && apk add --no-cache bash curl
+
+RUN curl -Lo "sbt-${SBT_VERSION}.tgz" "https://github.com/sbt/sbt/releases/download/v${SBT_VERSION}/sbt-${SBT_VERSION}.tgz" &&\
+    tar -xvf sbt-${SBT_VERSION}.tgz
+
+ENV PATH $PATH:/sbt/bin
+
+

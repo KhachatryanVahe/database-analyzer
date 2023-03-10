@@ -1,2 +1,49 @@
+# Compiled Java class files
 *.class
+
+# Log files
 *.log
+
+# Package files
+*.jar
+
+# Maven
+target/
+dist/
+
+# JetBrains IDE
+.idea/
+.vscode/
+
+# Applications
+*.app
+*.exe
+*.war
+
+dist/*
+target/
+lib_managed/
+src_managed/
+project/boot/
+project/plugins/project/
+.metals
+.history
+.cache
+.lib/
+*.parquet
+*.parquet.gz
+.env*
+!.env.example
+teradata/results/*
+bin
+generated
+node_modules
+.stable_random_id
+spark-3.3.1
+run
+postgresql.conf
+
+#temporay added
+mssql/
+mysql/
+oracle/
