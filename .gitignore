@@ -40,7 +40,6 @@ generated
 node_modules
 .stable_random_id
 spark-3.3.1
-run
 postgresql.conf
 
 #temporay added
