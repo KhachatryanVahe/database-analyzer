@@ -10,7 +10,7 @@ import app.helpers.SparkHelper
 
 
 object PostgresDataProcessing {
-  def postgresConnnection(host : String, port : String, db : String, user : String, password : String) : Connection = {
+  def connnectToPostgres(host : String, port : String, db : String, user : String, password : String) : Connection = {
     var postgresConnection: Connection = null
     DriverManager.setLoginTimeout(20);
     try {
@@ -46,16 +46,16 @@ object PostgresDataProcessing {
   }
 
   def main(args: Array[String]) : Unit = {
-    val pgHost = sys.env("PGHOST")
-    val pgPort = sys.env("PGPORT")
-    val pgDB = sys.env("PGDB")
-    val pgUser = sys.env("PGUSER")
-    val pgPassword = sys.env("PGPASSWORD")
+    val pgHost = sys.env("DB_HOST")
+    val pgPort = sys.env("DB_PORT")
+    val pgDB = sys.env("DB")
+    val pgUser = sys.env("DB_USER")
+    val pgPassword = sys.env("DB_PASSWORD")
 
     val spark = SparkHelper.getSpark()
 
-    val connection = postgresConnnection(pgHost, pgPort, pgDB, pgUser, pgPassword)
-    val statement = connection.createStatement()
+    val postgresConnection = connnectToPostgres(pgHost, pgPort, pgDB, pgUser, pgPassword)
+    val statement = postgresConnection.createStatement()
     statement.executeUpdate("CREATE EXTENSION IF NOT EXISTS pg_stat_statements;");
 
     println(("docker restart postgres-thesis")!!)

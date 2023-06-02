@@ -4,7 +4,7 @@ services:
     image: postgres-thesis
     container_name: postgres-thesis
     build:
-      context: ./
+      context: ./app
       dockerfile: Dockerfile.postgres
     environment:
       POSTGRES_DB: thesis
@@ -16,10 +16,10 @@ services:
     image: thesis-processing
     container_name: build-script
     build:
-      context: ./
-      dockerfile: Dockerfile
+      context: ./app
+      dockerfile: Dockerfile.spark
     volumes:
-      - ./:/home/app
+      - ./app:/home/app
     working_dir: /home/app
     entrypoint: []
     command:
@@ -28,3 +28,20 @@ services:
       - |
           sbt assembly
           mv target/scala-2.13/app.jar app.jar
+  cli-build:
+    image: cli-ui
+    container_name: cli-ui
+    build:
+      context: ./cli
+      dockerfile: Dockerfile.cli
+    volumes:
+      - ./cli:/home/app
+      - ./bin:/home/bin
+    working_dir: /home/app
+    entrypoint: []
+    command:
+      - bash
+      - -c
+      - |
+          go build -o ui ui.go
+          mv ui ../bin

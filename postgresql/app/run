@@ -12,6 +12,6 @@ dir=$(pwd)
     --class PostgresDataProcessing.PostgresDataProcessing \
     --master "local[$CORELIMIT]" \
     --driver-memory "${MEMLIMIT}g" \
-    --jars "$dir/app.jar,$dir/postgresql-42.5.0.jar" \
+    --jars "$dir/app.jar" \
     --driver-java-options "-Dlogger_file_name=$dir/log4j_collection.log" \
     "$dir/app.jar" \
