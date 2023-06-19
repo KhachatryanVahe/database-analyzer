@@ -54,11 +54,11 @@ object PostgresDataProcessing {
 
     val spark = SparkHelper.getSpark()
 
-    val postgresConnection = connnectToPostgres(pgHost, pgPort, pgDB, pgUser, pgPassword)
-    val statement = postgresConnection.createStatement()
-    statement.executeUpdate("CREATE EXTENSION IF NOT EXISTS pg_stat_statements;");
+    // val postgresConnection = connnectToPostgres(pgHost, pgPort, pgDB, pgUser, pgPassword)
+    // val statement = postgresConnection.createStatement()
+    // statement.executeUpdate("CREATE EXTENSION IF NOT EXISTS pg_stat_statements;");
 
-    println(("docker restart postgres-thesis")!!)
+    // println(("docker restart postgres-thesis")!!)
 
     var df = getQueries(pgHost, pgPort, pgDB, pgUser, pgPassword, "SELECT query FROM pg_stat_statements")
     df.show()

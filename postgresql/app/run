@@ -1,5 +1,6 @@
 #! /bin/bash
 
+# Load environment variables from .env file
 set -a
 source .env
 set +a
@@ -8,10 +9,11 @@ dir=$(pwd)
 # resultsDir="$dir/results"
 # mkdir -p "$resultsDir"
 
-./spark-3.3.1/bin/spark-submit \
+# Run Scala file with spark-submit
+./spark-3.4.0/bin/spark-submit \
     --class PostgresDataProcessing.PostgresDataProcessing \
     --master "local[$CORELIMIT]" \
     --driver-memory "${MEMLIMIT}g" \
-    --jars "$dir/app.jar" \
+    --jars "$dir/postgresql-42.6.0.jar" \
     --driver-java-options "-Dlogger_file_name=$dir/log4j_collection.log" \
-    "$dir/app.jar" \
+    "$dir/app.jar"

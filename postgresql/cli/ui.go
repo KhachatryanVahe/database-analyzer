@@ -40,7 +40,7 @@ func main() {
 
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatal("Error loading .env file")
+		log.Print("Error loading .env file")
 	}
 
 	host := os.Getenv("DB_HOST")
@@ -73,9 +73,7 @@ func main() {
 			password = text
 		}).
 		AddButton("next", func() {
-			cmd := exec.Command(
-				"./run",
-			)
+			cmd := exec.Command("./run")
 			stderr, err := cmd.StderrPipe()
 			if err != nil {
 				log.Fatal(err)
