@@ -25,6 +25,7 @@ target/
 lib_managed/
 src_managed/
 project/boot/
+project/project/
 project/plugins/project/
 .metals
 .history
@@ -39,7 +40,7 @@ bin
 generated
 node_modules
 .stable_random_id
-spark-3.3.1
+spark-*
 postgresql.conf
 
 #temporay added

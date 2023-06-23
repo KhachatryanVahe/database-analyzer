@@ -25,42 +25,36 @@ object PostgresDataProcessing {
     (postgresConnection)
   }
 
-  def getQueries(pgHost : String, pgPort : String, pgDB : String, pgUser : String, pgPassword : String, query : String): DataFrame = {
+  def getQueries(host : String, port : String, db : String, user : String, password : String, query : String): DataFrame = {
     val spark = SparkHelper.getSpark()
     var df = spark.read
       .format("jdbc")
-      .option("url", s"jdbc:postgresql://${pgHost}:${pgPort}/${pgDB}")
-      .option("user", pgUser)
-      .option("password", pgPassword)
-      .option("dbTable", s"($query) as que")
-      .option("driver", "org.postgresql.Driver")
-      // .options(Map(
-      //   "url" -> s"jdbc:postgresql://${pgHost}:${pgPort}/${pgDB}",
-      //   "user" -> pgUser,
-      //   "password" -> pgPassword,
-      //   "dbTable" -> s"($query) as que",
-      //   "driver" -> "org.postgresql.Driver"
-      // ))
+      .options(Map(
+        "url" -> s"jdbc:postgresql://$host:$port/$db",
+        "user" -> user,
+        "password" -> password,
+        "dbTable" -> s"($query) as que",
+        "driver" -> "org.postgresql.Driver"
+      ))
       .load()
     (df)
   }
 
   def main(args: Array[String]) : Unit = {
-    val pgHost = sys.env("DB_HOST")
-    val pgPort = sys.env("DB_PORT")
-    val pgDB = sys.env("DB")
-    val pgUser = sys.env("DB_USER")
-    val pgPassword = sys.env("DB_PASSWORD")
+    val host = sys.env("DB_HOST")
+    val port = sys.env("DB_PORT")
+    val db = sys.env("DB")
+    val user = sys.env("DB_USER")
+    val password = sys.env("DB_PASSWORD")
 
     val spark = SparkHelper.getSpark()
-
-    // val postgresConnection = connnectToPostgres(pgHost, pgPort, pgDB, pgUser, pgPassword)
+    // val postgresConnection = connnectToPostgres(host, port, db, user, password)
     // val statement = postgresConnection.createStatement()
     // statement.executeUpdate("CREATE EXTENSION IF NOT EXISTS pg_stat_statements;");
 
     // println(("docker restart postgres-thesis")!!)
 
-    var df = getQueries(pgHost, pgPort, pgDB, pgUser, pgPassword, "SELECT query FROM pg_stat_statements")
+    var df = getQueries(host, port, db, user, password, "SELECT query FROM pg_stat_statements")
     df.show()
     // val scriptRunner = new ScriptRunner(connection);
     SparkHelper.closeSession()
