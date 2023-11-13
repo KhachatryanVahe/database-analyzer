@@ -1,6 +1,6 @@
 FROM amazoncorretto:19-alpine
 
-ARG SBT_VERSION=1.8.0
+ARG SBT_VERSION=1.9.0
 
 RUN apk update \
     && apk add --no-cache bash curl

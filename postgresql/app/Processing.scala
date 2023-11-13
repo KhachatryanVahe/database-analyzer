@@ -1,4 +1,4 @@
-package PostgresDataProcessing
+package org.analyzer.processing
 
 import scala.util.Properties
 import java.sql.{Connection, DriverManager}
@@ -7,9 +7,9 @@ import org.apache.spark.sql.DataFrame
 import sys.process._
 import scala.language.postfixOps
 import app.helpers.SparkHelper
+import org.analyzer.PgParser.Parser
 
-
-object PostgresDataProcessing {
+object Processing {
   def connnectToPostgres(host : String, port : String, db : String, user : String, password : String) : Connection = {
     var postgresConnection: Connection = null
     DriverManager.setLoginTimeout(20);
@@ -29,13 +29,11 @@ object PostgresDataProcessing {
     val spark = SparkHelper.getSpark()
     var df = spark.read
       .format("jdbc")
-      .options(Map(
-        "url" -> s"jdbc:postgresql://$host:$port/$db",
-        "user" -> user,
-        "password" -> password,
-        "dbTable" -> s"($query) as que",
-        "driver" -> "org.postgresql.Driver"
-      ))
+      .option("url", s"jdbc:postgresql://$host:$port/$db")
+      .option("user", user)
+      .option("password", password)
+      .option("dbTable", s"($query) as que")
+      .option("driver", "org.postgresql.Driver")
       .load()
     (df)
   }
@@ -54,9 +52,29 @@ object PostgresDataProcessing {
 
     // println(("docker restart postgres-thesis")!!)
 
-    var df = getQueries(host, port, db, user, password, "SELECT query FROM pg_stat_statements")
-    df.show()
-    // val scriptRunner = new ScriptRunner(connection);
+    // var df = getQueries(host, port, db, user, password, "SELECT query FROM pg_stat_statements")
+    // df.show()
+    val inputs = Array(
+      // "SELECT column1, column2 FROM table1, table2 WHERE column1 = 'value' AND column2 > 10",
+      "SELECT column3 FROM table3 WHERE column3 = 'value' AND column4 = 5",
+      // "INSERT INTO table3 (col1, col2 ) VALUES ('asd', '54')"
+    )
+    val input = "SELECT column3 FROM table3 WHERE column3 = 'value' AND column4 = 5"
+    println("input = " + input)
+    val (rules) = Parser.getInfo(input)
+    println("rules = " + rules)
+
+    // try {
+    //   for(input <- inputs) {
+    //     println("input = " + input)
+    //     val (rules) = Parser.getInfo(input)
+    //     println("rules = " + rules)
+    //   }
+    // } catch {
+    //   case e: Throwable => {
+    //     println("error = " + e.getMessage())
+    //   }
+    // }
     SparkHelper.closeSession()
   }
 }

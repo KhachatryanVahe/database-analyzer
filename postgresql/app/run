@@ -2,8 +2,9 @@
 
 # Load environment variables from .env file
 set -a
-source .env
+source ../.env
 set +a
+unset _JAVA_OPTIONS
 
 dir=$(pwd)
 # resultsDir="$dir/results"
@@ -11,7 +12,7 @@ dir=$(pwd)
 
 # Run Scala file with spark-submit
 ./spark-3.4.0/bin/spark-submit \
-    --class PostgresDataProcessing.PostgresDataProcessing \
+    --class org.analyzer.processing.Processing \
     --master "local[$CORELIMIT]" \
     --driver-memory "${MEMLIMIT}g" \
     --jars "$dir/postgresql-42.6.0.jar" \
