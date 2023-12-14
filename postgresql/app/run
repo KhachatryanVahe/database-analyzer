@@ -12,7 +12,7 @@ dir=$(pwd)
 
 # Run Scala file with spark-submit
 ./spark-3.4.0/bin/spark-submit \
-    --class org.analyzer.processing.Processing \
+    --class processing.Processing \
     --master "local[$CORELIMIT]" \
     --driver-memory "${MEMLIMIT}g" \
     --jars "$dir/postgresql-42.6.0.jar" \

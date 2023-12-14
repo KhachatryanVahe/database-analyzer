@@ -1,4 +1,4 @@
-package org.analyzer.PgParser;
+package parser;
 
 import org.antlr.v4.runtime.misc.ParseCancellationException;
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -25,12 +25,12 @@ public class PgParser {
     return listener;
   }
 
-  public static PostgreSQLBaseListener walk(String query) throws ParseCancellationException {
+  public static PostgreSQLParserBaseListener walk(String query) throws ParseCancellationException {
     CharStream characterStream = CharStreams.fromString(query);
     PostgreSQLLexer lexer = new PostgreSQLLexer(characterStream);
     CommonTokenStream tokens = new CommonTokenStream(lexer);
     PostgreSQLParser parser = new PostgreSQLParser(tokens);
-    ParseTree tree = parser.query();
+    ParseTree tree = parser.root();
     CustomPostgreSQLListener listener = new CustomPostgreSQLListener();
     ParseTreeWalker walker = new ParseTreeWalker();
     walker.walk(listener, tree);

@@ -1,6 +1,5 @@
 ThisBuild / version := "0.1.0"
-ThisBuild / scalaVersion := "2.13.10"
-ThisBuild / organization := "org.analyzer"
+ThisBuild / scalaVersion := "2.13.0"
 
 lazy val processing = project
   .in(file("."))
@@ -9,7 +8,7 @@ lazy val processing = project
     libraryDependencies ++= Seq(
       "org.apache.spark" %% "spark-sql" % "3.4.0" % "provided"
     ),
-    mainClass := Some("org.analyzer.processing.Processing"),
+    mainClass := Some("processing.Processing"),
     assemblyJarName := "app.jar",
   )
   .aggregate(parser)
@@ -17,6 +16,15 @@ lazy val processing = project
 
 lazy val parser = project
   .in(file("./parser"))
+  .enablePlugins(Antlr4Plugin)
   .settings(
-    name := "parser"
+    name := "Postgres parser",
+    libraryDependencies ++= Seq(
+      "org.antlr" % "antlr4" % "4.9.3",
+      "org.antlr" % "antlr4-runtime" % "4.9.3",
+    ),
+    Antlr4 / antlr4Version := "4.9.3",
+    Antlr4 / antlr4GenListener := true,
+    Antlr4 / antlr4GenVisitor := false,
+    Antlr4 / antlr4PackageName := Some("parser")
   )

@@ -1,4 +1,4 @@
-package org.analyzer.processing
+package processing
 
 import scala.util.Properties
 import java.sql.{Connection, DriverManager}
@@ -7,7 +7,7 @@ import org.apache.spark.sql.DataFrame
 import sys.process._
 import scala.language.postfixOps
 import app.helpers.SparkHelper
-import org.analyzer.PgParser.Parser
+import parser.PostgresParser
 
 object Processing {
   def connnectToPostgres(host : String, port : String, db : String, user : String, password : String) : Connection = {
@@ -61,7 +61,7 @@ object Processing {
     )
     val input = "SELECT column3 FROM table3 WHERE column3 = 'value' AND column4 = 5"
     println("input = " + input)
-    val (rules) = Parser.getInfo(input)
+    val (rules) = PostgresParser.getInfo(input)
     println("rules = " + rules)
 
     // try {

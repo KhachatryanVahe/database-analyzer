@@ -1,9 +1,9 @@
-package org.analyzer.PgParser
+package parser
 
 import scala.collection.mutable.Map
 import scala.collection.JavaConverters._
 
-object Parser {
+object PostgresParser {
   def parse(query: String): (Map[String, Integer]) = {
     var processedQuery = query.trim()
     if (processedQuery.takeRight(1) != ";") {
@@ -39,22 +39,22 @@ object Parser {
   //   return (rules)
   // }
 
-  // def main(args: Array[String]): Unit = {
-  //   val inputs = Array(
-  //     // "SELECT column1, column2 FROM table1, table2 WHERE column1 = 'value' AND column2 > 10",
-  //     "SELECT column3 FROM table3 WHERE column3 = 'value' AND column4 = 5",
-  //     // "INSERT INTO table3 (col1, col2 ) VALUES ('asd', '54')"
-  //   )
+  def main(args: Array[String]): Unit = {
+    val inputs = Array(
+      // "SELECT column1, column2 FROM table1, table2 WHERE column1 = 'value' AND column2 > 10",
+      "SELECT column3 FROM table3 WHERE column3 = 'value' AND column4 = 5",
+      // "INSERT INTO table3 (col1, col2 ) VALUES ('asd', '54')"
+    )
 
-  //   try {
-  //     for(input <- inputs) {
-  //       val (rules) = parse(input)
-  //       println("rules = " + rules)
-  //     }
-  //   } catch {
-  //     case e: Throwable => {
-  //       println("error = " + e.getMessage())
-  //     }
-  //   }
-  // }
+    try {
+      for(input <- inputs) {
+        val (rules) = parse(input)
+        println("rules = " + rules)
+      }
+    } catch {
+      case e: Throwable => {
+        println("error = " + e.getMessage())
+      }
+    }
+  }
 }
