@@ -10,8 +10,14 @@ dir=$(pwd)
 # resultsDir="$dir/results"
 # mkdir -p "$resultsDir"
 
+echo "Creating view for tracking planning and execution statistics"
+PGPASSWORD=$DB_PASSWORD psql -h $DB_HOST -p $DB_PORT -d $DB -U $DB_USER -c "CREATE EXTENSION IF NOT EXISTS pg_stat_statements;"
+
+echo "Restarting postgres"
+docker restart postgres-thesis
+
 # Run Scala file with spark-submit
-./spark-3.4.0/bin/spark-submit \
+./spark-3.5.0/bin/spark-submit \
     --class processing.Processing \
     --master "local[$CORELIMIT]" \
     --driver-memory "${MEMLIMIT}g" \

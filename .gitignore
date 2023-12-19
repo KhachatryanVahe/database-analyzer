@@ -42,6 +42,7 @@ node_modules
 .stable_random_id
 spark-*
 postgresql.conf
+postgresql/app/parser/src/main/antlr4/
 
 #temporay added
 mssql/

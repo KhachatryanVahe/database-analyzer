@@ -1,12 +1,12 @@
 ThisBuild / version := "0.1.0"
-ThisBuild / scalaVersion := "2.13.0"
+ThisBuild / scalaVersion := "2.13.10"
 
 lazy val processing = project
   .in(file("."))
   .settings(
     name := "Query Analyzer",
     libraryDependencies ++= Seq(
-      "org.apache.spark" %% "spark-sql" % "3.4.0" % "provided"
+      "org.apache.spark" %% "spark-sql" % "3.5.0" % "provided"
     ),
     mainClass := Some("processing.Processing"),
     assemblyJarName := "app.jar",
