@@ -14,7 +14,7 @@ class CustomPostgreSQLListener extends PostgreSQLParserBaseListener {
   public void enterEveryRule(ParserRuleContext ctx) {
     String[] split = ctx.getPayload().getClass().toString().split("\\$");
     String value = ctx.getPayload().getText();
-    String parseNode = split[split.length - 1].replace("Context", "");
+    String parseNode = split[split.length - 1].replace("Context", "").toLowerCase();
     // if (!ignoredrulesSet.contains(parseNode)) {
     //   if (withValuerulesSet.contains(parseNode)) {
     //     hashSB.append(parseNode).append("|").append(value).append(">");

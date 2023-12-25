@@ -20,7 +20,7 @@ public class PgParser {
     PostgreSQLLexer lexer = new PostgreSQLLexer(characterStream);
     CommonTokenStream tokens = new CommonTokenStream(lexer);
     PostgreSQLParser parser = new PostgreSQLParser(tokens);
-    ParseTree tree = parser.stmt();
+    ParseTree tree = parser.sql();
     CustomPostgreSQLListener listener = new CustomPostgreSQLListener();
     ParseTreeWalker walker = new ParseTreeWalker();
     walker.walk(listener, tree);
