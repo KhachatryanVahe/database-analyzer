@@ -90,7 +90,7 @@ lock_mode
 script_additional
     : additional_statement
     | VACUUM vacuum_mode table_cols_list?
-    | (FETCH | MOVE) fetch_move_direction? (FROM | IN)? identifier
+    | (fetch_kw | MOVE) fetch_move_direction? (FROM | IN)? identifier
     | CLOSE (identifier | ALL)
     | CALL function_call
     | DISCARD (ALL | PLANS | SEQUENCES | TEMPORARY | TEMP)
@@ -304,7 +304,7 @@ schema_drop
 
 schema_import
     : IMPORT FOREIGN SCHEMA name=identifier
-    ((LIMIT TO | EXCEPT) LEFT_PAREN identifier_list RIGHT_PAREN)?
+    ((LIMIT TO | except_kw) LEFT_PAREN identifier_list RIGHT_PAREN)?
     FROM SERVER identifier INTO identifier
     define_foreign_options?
     ;
@@ -664,7 +664,7 @@ alter_fts_statement
 
 alter_fts_configuration
     : (ADD | ALTER) MAPPING FOR identifier_list WITH schema_qualified_name (COMMA schema_qualified_name)*
-    | ALTER MAPPING (FOR identifier_list)? REPLACE schema_qualified_name WITH schema_qualified_name
+    | ALTER MAPPING (FOR identifier_list)? replace_kw schema_qualified_name WITH schema_qualified_name
     | DROP MAPPING (IF EXISTS)? FOR identifier_list
     ;
 
@@ -715,7 +715,7 @@ index_where
     : WHERE vex
     ;
 
- create_extension_statement
+create_extension_statement
     : EXTENSION if_not_exists? name=identifier 
     WITH?
     (SCHEMA schema=identifier)? 
@@ -725,7 +725,7 @@ index_where
     ;
 
 create_language_statement
-    : (OR REPLACE)? TRUSTED? PROCEDURAL? LANGUAGE name=identifier
+    : (OR replace_kw)? TRUSTED? PROCEDURAL? LANGUAGE name=identifier
     (HANDLER schema_qualified_name (INLINE schema_qualified_name)? (VALIDATOR schema_qualified_name)?)?
     ;
 
@@ -950,7 +950,7 @@ domain_constraint
     ;
 
 create_transform_statement
-    : (OR REPLACE)? TRANSFORM FOR data_type LANGUAGE identifier
+    : (OR replace_kw)? TRANSFORM FOR data_type LANGUAGE identifier
     LEFT_PAREN
         FROM SQL WITH FUNCTION function_parameters COMMA
         TO SQL WITH FUNCTION function_parameters
@@ -1050,7 +1050,7 @@ operator_option
     ;
 
 create_aggregate_statement
-    : (OR REPLACE)? AGGREGATE name=schema_qualified_name function_args? LEFT_PAREN
+    : (OR replace_kw)? AGGREGATE name=schema_qualified_name function_args? LEFT_PAREN
     (BASETYPE EQUAL (base_type=data_type | ANY) COMMA)?
     SFUNC EQUAL sfunc_name=schema_qualified_name COMMA
     STYPE EQUAL type=data_type
@@ -1106,7 +1106,7 @@ set_statement_value
     ;
 
 create_rewrite_statement
-    : (OR REPLACE)? RULE name=identifier AS ON event=(SELECT | INSERT | DELETE | UPDATE)
+    : (OR replace_kw)? RULE name=identifier AS ON event=(SELECT | INSERT | DELETE | UPDATE)
      TO table_name=schema_qualified_name (WHERE vex)? DO (ALSO | INSTEAD)?
      (NOTHING
         | rewrite_command
@@ -1123,7 +1123,7 @@ rewrite_command
     ;
 
 create_trigger_statement
-    : (OR REPLACE)? CONSTRAINT? TRIGGER name=identifier (before_true=BEFORE | (INSTEAD OF) | AFTER)
+    : (OR replace_kw)? CONSTRAINT? TRIGGER name=identifier (before_true=BEFORE | (INSTEAD OF) | AFTER)
     (((insert_true=INSERT | delete_true=DELETE | truncate_true=TRUNCATE) 
     | update_true=UPDATE (OF identifier_list)?)OR?)+
     ON table_name=schema_qualified_name
@@ -1300,7 +1300,7 @@ label_member_object
 ===============================================================================
 */
 create_function_statement
-    : (OR REPLACE)? (FUNCTION | PROCEDURE) function_parameters
+    : (OR replace_kw)? (FUNCTION | PROCEDURE) function_parameters
     (RETURNS (rettype_data=data_type | ret_table=function_ret_table))?
     (function_actions_common+ with_storage_parameter? | function_actions_common* function_body)
     ;
@@ -1575,7 +1575,7 @@ copy_option
     ;
 
 create_view_statement
-    : (OR REPLACE)? (TEMP | TEMPORARY)? RECURSIVE? MATERIALIZED? VIEW 
+    : (OR replace_kw)? (TEMP | TEMPORARY)? RECURSIVE? MATERIALIZED? VIEW 
     if_not_exists? name=schema_qualified_name column_names=view_columns?
     (USING identifier)?
     (WITH storage_parameters)?
@@ -2222,11 +2222,11 @@ bare_label_keyword
     | CUBE
     | CURRENT
     | CURRENT_CATALOG
-    | CURRENT_DATE
+    | current_date_kw
     | CURRENT_ROLE
     | CURRENT_SCHEMA
-    | CURRENT_TIME
-    | CURRENT_TIMESTAMP
+    | current_time_kw
+    | current_timestamp_kw
     | CURRENT_USER
     | CURSOR
     | CYCLE
@@ -2447,7 +2447,7 @@ bare_label_keyword
     | RELEASE
     | RENAME
     | REPEATABLE
-    | REPLACE
+    | replace_kw
     | REPLICA
     | RESET
     | RESTART
@@ -2799,7 +2799,7 @@ tokens_nonreserved
     | RELEASE
     | RENAME
     | REPEATABLE
-    | REPLACE
+    | replace_kw
     | REPLICA
     | RESET
     | RESTART
@@ -2998,10 +2998,10 @@ tokens_reserved
     | CONSTRAINT
     | CREATE
     | CURRENT_CATALOG
-    | CURRENT_DATE
+    | current_date_kw
     | CURRENT_ROLE
-    | CURRENT_TIME
-    | CURRENT_TIMESTAMP
+    | current_time_kw
+    | current_timestamp_kw
     | CURRENT_USER
     | DEFAULT
     | DEFERRABLE
@@ -3010,9 +3010,9 @@ tokens_reserved
     | DO
     | ELSE
     | END
-    | EXCEPT
+    | except_kw
     | FALSE
-    | FETCH
+    | fetch_kw
     | FOR
     | FOREIGN
     | FROM
@@ -3021,7 +3021,7 @@ tokens_reserved
     | HAVING
     | IN
     | INITIALLY
-    | INTERSECT
+    | intersect_kw
     | INTO
     | LATERAL
     | LEADING
@@ -3049,7 +3049,7 @@ tokens_reserved
     | TO
     | TRAILING
     | TRUE
-    | UNION
+    | union_kw
     | UNIQUE
     | USER
     | USING
@@ -3275,25 +3275,49 @@ array_type
     ;
 
 predefined_type
+    : integer_type
+    | floating_point_type
+    | fixed_point_type
+    | character_type
+    | datetime_type
+    | other_type
+    ;
+
+integer_type
     : BIGINT
     | BIT VARYING? type_length?
     | BOOLEAN
     | DEC precision_param?
     | DECIMAL precision_param?
-    | DOUBLE PRECISION
-    | FLOAT precision_param?
     | INT
     | INTEGER
-    | INTERVAL interval_field? type_length?
-    | NATIONAL? (CHARACTER | CHAR) VARYING? type_length?
-    | NCHAR VARYING? type_length?
-    | NUMERIC precision_param?
-    | REAL
     | SMALLINT
+    ;
+
+floating_point_type
+    : DOUBLE PRECISION
+    | FLOAT precision_param?
+    | REAL
+    ;
+
+fixed_point_type
+    : NUMERIC precision_param?
+    ;
+
+character_type
+    : NATIONAL? (CHARACTER | CHAR) VARYING? type_length?
+    | NCHAR VARYING? type_length?
+    | VARCHAR type_length?
+    ;
+
+datetime_type
+    : INTERVAL interval_field? type_length?
     | TIME type_length? ((WITH | WITHOUT) TIME ZONE)?
     | TIMESTAMP type_length? ((WITH | WITHOUT) TIME ZONE)?
-    | VARCHAR type_length?
-    | schema_qualified_name_nontype (LEFT_PAREN vex (COMMA vex)* RIGHT_PAREN)?
+    ;
+
+other_type
+    : schema_qualified_name_nontype (LEFT_PAREN vex (COMMA vex)* RIGHT_PAREN)?
     ;
 
 interval_field
@@ -3327,7 +3351,7 @@ precision_param
 */
 
 vex
-  : vex CAST_EXPRESSION data_type
+  : vex cast_expression data_type
   | LEFT_PAREN vex RIGHT_PAREN indirection_list?
   | LEFT_PAREN vex (COMMA vex)+ RIGHT_PAREN
   | vex collate_identifier
@@ -3361,7 +3385,7 @@ vex
 // vex references that are not at alternative edge are referencing the full rule
 // see postgres' b_expr (src/backend/parser/gram.y)
 vex_b
-  : vex_b CAST_EXPRESSION data_type
+  : vex_b cast_expression data_type
   | LEFT_PAREN vex RIGHT_PAREN indirection_list?
   | LEFT_PAREN vex (COMMA vex)+ RIGHT_PAREN
   | <assoc=right> (PLUS | MINUS) vex_b
@@ -3478,9 +3502,9 @@ system_function
     ;
 
 date_time_function
-    : CURRENT_DATE
-    | CURRENT_TIME type_length?
-    | CURRENT_TIMESTAMP type_length?
+    : current_date_kw
+    | current_time_kw type_length?
+    | current_timestamp_kw type_length?
     | LOCALTIME type_length?
     | LOCALTIMESTAMP type_length?
     ;
@@ -3607,8 +3631,12 @@ after_ops
     : orderby_clause
     | LIMIT (vex | ALL)
     | OFFSET vex (ROW | ROWS)?
-    | FETCH (FIRST | NEXT) vex? (ROW | ROWS) (ONLY | WITH TIES)?
+    | fetch_kw (FIRST | NEXT) vex? (ROW | ROWS) (ONLY | WITH TIES)?
     | FOR (UPDATE | NO KEY UPDATE | SHARE | KEY SHARE) (OF schema_qualified_name (COMMA schema_qualified_name)*)? (NOWAIT | SKIP_ LOCKED)?
+    ;
+
+limit
+    :LIMIT
     ;
 
 // select_stmt copy that doesn't consume external parens
@@ -3631,13 +3659,13 @@ with_query
 
 select_ops
     : LEFT_PAREN select_stmt RIGHT_PAREN // parens can be used to apply "global" clauses (WITH etc) to a particular select in UNION expr
-    | select_ops (INTERSECT | UNION | EXCEPT) set_qualifier? select_ops
+    | select_ops (intersect_kw | union_kw | except_kw) set_qualifier? select_ops
     | select_primary
     ;
 
 // version of select_ops for use in select_stmt_no_parens
 select_ops_no_parens
-    : select_ops (INTERSECT | UNION | EXCEPT) set_qualifier? (select_primary | LEFT_PAREN select_stmt RIGHT_PAREN)
+    : select_ops (intersect_kw | union_kw | except_kw) set_qualifier? (select_primary | LEFT_PAREN select_stmt RIGHT_PAREN)
     | select_primary
     ;
 
@@ -3669,10 +3697,10 @@ into_table
 
 from_item
     : LEFT_PAREN from_item RIGHT_PAREN alias_clause?
-    | from_item CROSS JOIN from_item
-    | from_item (INNER | (LEFT | RIGHT | FULL) OUTER?)? JOIN from_item ON vex
-    | from_item (INNER | (LEFT | RIGHT | FULL) OUTER?)? JOIN from_item USING names_in_parens
-    | from_item NATURAL (INNER | (LEFT | RIGHT | FULL) OUTER?)? JOIN from_item
+    | from_item CROSS join_kw from_item
+    | from_item (INNER | (LEFT | RIGHT | FULL) OUTER?)? join_kw from_item ON vex
+    | from_item (INNER | (LEFT | RIGHT | FULL) OUTER?)? join_kw from_item USING names_in_parens
+    | from_item NATURAL (INNER | (LEFT | RIGHT | FULL) OUTER?)? join_kw from_item
     | from_primary
     ;
 
@@ -3926,7 +3954,7 @@ perform_stmt
     groupby_clause?
     (HAVING vex)?
     (WINDOW identifier AS window_definition (COMMA identifier AS window_definition)*)?
-    ((INTERSECT | UNION | EXCEPT) set_qualifier? select_ops)?
+    ((intersect_kw | union_kw | except_kw) set_qualifier? select_ops)?
     after_ops*
     ;
 
@@ -3949,7 +3977,7 @@ control_statement
 cursor_statement
     : OPEN var (NO? SCROLL)? FOR plpgsql_query
     | OPEN var (LEFT_PAREN option (COMMA option)* RIGHT_PAREN)?
-    | FETCH fetch_move_direction? (FROM | IN)? var
+    | fetch_kw fetch_move_direction? (FROM | IN)? var
     | MOVE fetch_move_direction? (FROM | IN)? var
     | CLOSE var
     ;
@@ -4032,4 +4060,44 @@ plpgsql_query
     | execute_stmt
     | show_statement
     | explain_statement
+    ;
+
+join_kw
+    : JOIN
+    ;
+
+replace_kw
+    : REPLACE
+    ;
+
+cast_expression
+    : CAST_EXPRESSION
+    ;
+
+current_date_kw
+    : CURRENT_DATE
+    ;
+
+current_time_kw
+    : CURRENT_TIME
+    ;
+
+current_timestamp_kw
+    : CURRENT_TIMESTAMP
+    ;
+
+fetch_kw
+    : FETCH
+    ;
+
+intersect_kw
+    : INTERSECT
+    ;
+
+union_kw
+    : UNION
+    ;
+
+except_kw
+    : EXCEPT
     ;

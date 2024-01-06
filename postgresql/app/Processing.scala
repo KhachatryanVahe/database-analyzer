@@ -50,8 +50,8 @@ object Processing {
     df.show()
     df.foreach(row => {
       try {
-        val (rules, queryType) = PostgresParser.getInfo(row.mkString)
-        println("======" + queryType)
+        val (attributes, rules, queryType) = PostgresParser.getInfo(row.mkString)
+        println("======" + row.mkString, queryType, attributes)
       } catch {
         case e: Throwable => {
           println("error = " + e.getMessage())

@@ -4,6 +4,43 @@ import scala.collection.mutable.Map
 import scala.jdk.CollectionConverters._
 
 object PostgresParser {
+  val features = scala.collection.immutable.Map(
+    "alias_clause" -> "Alias",
+    "cast_expression" -> "Cast",
+    "constr_body" -> "Constraint",
+    "groupby_clause" -> "GroupBy",
+    "interval_field" -> "IntervalLiteral",
+    "orderby_clause" -> "Sorting",
+    "null_ordering" -> "NullOrdering",
+    "exception_statement" -> "ExceptionStatement",
+    "join_kw" -> "Join",
+    "if_exists" -> "Exists",
+    "replace_kw" -> "Replace",
+    "case_statement" -> "CaseStatement",
+    "schema_create" -> "Create",
+    "current_date_kw" -> "CurrentDate",
+    "current_time_kw" -> "CurrentTime",
+    "current_timestamp_kw" -> "CurrentTimestamp",
+    "like_type" -> "Like",
+    "fetch_kw" -> "Fetch",
+    "sign" -> "Sign",
+    "intersect_kw" -> "Intersect",
+    "union_kw" -> "Union",
+    "except_kw" -> "Except",
+    "select_stmt" -> "Select",
+    "insert_stmt_for_psql" -> "Insert",
+    "update_stmt_for_psql" -> "Update",
+    "delete_stmt_for_psql" -> "Delete",
+    "loop_statement" -> "Loop",
+    "if_statement" -> "If",
+    "assign_stmt" -> "VarAssign",
+    "integer_type" -> "IntegerCol",
+    "floating_point_type" -> "FloatingPointCol",
+    "fixed_point_type" -> "FixedPointCol",
+    "character_type" -> "CharacterCol",
+    "datetime_type" -> "DatetimeCol",
+  )
+
   val queryTypes = scala.collection.immutable.Map(
     "select_stmt" -> "SELECT",
     "insert_stmt_for_psql" -> "INSERT",
@@ -44,6 +81,7 @@ object PostgresParser {
     "alter_user_mapping_statement" -> "ALTER_USER_MAPPING",
     "alter_user_or_role_statement" -> "ALTER_USER_OR_ROLE",
     "alter_view_statement" -> "ALTER_VIEW",
+    "copy_statement" -> "COPY",
     "create_database_statement" -> "CREATE_DATABASE",
     "create_extension_statement" -> "CREATE_EXTENSION",
     "create_foreign_table_statement" -> "CREATE_FOREIGN_TABLE",
@@ -62,6 +100,7 @@ object PostgresParser {
     "create_user_or_role_statement" -> "CREATE_USER_OR_ROLE",
     "create_view_statement" -> "CREATE_VIEW",
     "drop_cast_statement" -> "DROP_CAST",
+    "drop_constraint" -> "DROP_CONSTRAINT",
     "drop_database_statement" -> "DROP_DATABASE",
     "drop_function_statement" -> "DROP_FUNCTION",
     "drop_operator_class_statement" -> "DROP_OPERATOR_CLASS",
@@ -76,9 +115,11 @@ object PostgresParser {
     "truncate_stmt" -> "TRUNCATE_TABLE",
     "transaction_statement" -> "TRANSACTION",
     "set_statement" -> "SET",
+    "schema_import" -> "IMPORT_SCHEMA",
     "declare_statement" -> "DECLARE",
     "execute_statement" -> "EXECUTE",
     "explain_statement" -> "EXPLAIN",
+    "reindex_stmt" -> "REINDEX",
     "show_statement" -> "SHOW"
   )
 
@@ -91,8 +132,9 @@ object PostgresParser {
     return (listener.getFeatureMap().asScala)
   }
 
-  def getInfo(input: String): (Map[String, Integer], String) = {
+  def getInfo(input: String): (Map[String, Integer], Map[String, Integer], String) = {
     var rules = Map[String, Integer]()
+    var attributes = Map[String, Integer]()
     var queryType: String = null
     var error: String = null
     try {
@@ -105,11 +147,19 @@ object PostgresParser {
     }
 
     for ((ruleName, ruleCount) <- rules) {
-      if (queryTypes.keySet.exists(_ == ruleName)) {
+      if (features.keySet.exists(_ == ruleName)) {
+        val featureName = features(ruleName)
+        if (attributes.keySet.exists(_ == featureName)) {
+          attributes(featureName) = attributes(featureName) + ruleCount
+        } else {
+          attributes(featureName) = ruleCount
+        }
+      }
+      if (queryType == null && queryTypes.keySet.exists(_ == ruleName)) {
         queryType = queryTypes(ruleName)
       }
     }
 
-    return (rules, queryType)
+    return (attributes, rules, queryType)
   }
 }
