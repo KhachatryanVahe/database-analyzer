@@ -5,40 +5,77 @@ import scala.jdk.CollectionConverters._
 
 object PostgresParser {
   val features = scala.collection.immutable.Map(
-    "alias_clause" -> "Alias",
-    "cast_expression" -> "Cast",
-    "constr_body" -> "Constraint",
-    "groupby_clause" -> "GroupBy",
-    "interval_field" -> "IntervalLiteral",
-    "orderby_clause" -> "Sorting",
-    "null_ordering" -> "NullOrdering",
-    "exception_statement" -> "ExceptionStatement",
-    "join_kw" -> "Join",
-    "if_exists" -> "Exists",
-    "replace_kw" -> "Replace",
-    "case_statement" -> "CaseStatement",
-    "schema_create" -> "Create",
-    "current_date_kw" -> "CurrentDate",
-    "current_time_kw" -> "CurrentTime",
-    "current_timestamp_kw" -> "CurrentTimestamp",
-    "like_type" -> "Like",
-    "fetch_kw" -> "Fetch",
-    "sign" -> "Sign",
-    "intersect_kw" -> "Intersect",
-    "union_kw" -> "Union",
-    "except_kw" -> "Except",
-    "select_stmt" -> "Select",
-    "insert_stmt_for_psql" -> "Insert",
-    "update_stmt_for_psql" -> "Update",
-    "delete_stmt_for_psql" -> "Delete",
-    "loop_statement" -> "Loop",
-    "if_statement" -> "If",
-    "assign_stmt" -> "VarAssign",
-    "integer_type" -> "IntegerCol",
-    "floating_point_type" -> "FloatingPointCol",
-    "fixed_point_type" -> "FixedPointCol",
-    "character_type" -> "CharacterCol",
-    "datetime_type" -> "DatetimeCol",
+    "alias_clause" -> "nAlias",
+    "cast_expression" -> "nCast",
+    "constr_body" -> "nConstraint",
+    "groupby_clause" -> "nGroupBy",
+    "interval_field" -> "nIntervalLiteral",
+    "orderby_clause" -> "nSorting",
+    "null_ordering" -> "nNullOrdering",
+    "exception_statement" -> "nExceptionStatement",
+    "join_kw" -> "nJoin",
+    "if_exists" -> "nExists",
+    "replace_kw" -> "nReplace",
+    "case_statement" -> "nCaseStatement",
+    "schema_create" -> "nCreate",
+    "current_date_kw" -> "nCurrentDate",
+    "current_time_kw" -> "nCurrentTime",
+    "current_timestamp_kw" -> "nCurrentTimestamp",
+    "like_type" -> "nLike",
+    "fetch_kw" -> "nFetch",
+    "sign" -> "nSign",
+    "intersect_kw" -> "nIntersect",
+    "union_kw" -> "nUnion",
+    "except_kw" -> "nExcept",
+    "select_stmt" -> "nSelect",
+    "insert_stmt_for_psql" -> "nInsert",
+    "update_stmt_for_psql" -> "nUpdate",
+    "delete_stmt_for_psql" -> "nDelete",
+    "loop_statement" -> "nLoop",
+    "if_statement" -> "nIf",
+    "assign_stmt" -> "nVarAssign",
+    "integer_type" -> "nIntegerCol",
+    "floating_point_type" -> "nFloatingPointCol",
+    "fixed_point_type" -> "nFixedPointCol",
+    "character_type" -> "nCharacterCol",
+    "datetime_type" -> "nDatetimeCol",
+  )
+
+  val featureWeights = scala.collection.immutable.Map(
+    "nAlias" -> 2,
+    "nCast" -> 3,
+    "nConstraint" -> 4,
+    "nGroupBy" -> 8,
+    "nIntervalLiteral" -> 5,
+    "nSorting" -> 8,
+    "nNullOrdering" -> 2,
+    "nExceptionStatement" -> 5,
+    "nJoin" -> 8,
+    "nExists" -> 4,
+    "nReplace" -> 5,
+    "nCaseStatement" -> 6,
+    "nCreate" -> 6,
+    "nCurrentDate" -> 1,
+    "nCurrentTime" -> 1,
+    "nCurrentTimestamp" -> 1,
+    "nLike" -> 2,
+    "nFetch" -> 2,
+    "nSign" -> 1,
+    "nIntersect" -> 7,
+    "nUnion" -> 7,
+    "nExcept" -> 7,
+    "nSelect" -> 5,
+    "nInsert" -> 5,
+    "nUpdate" -> 5,
+    "nDelete" -> 5,
+    "nLoop" -> 10,
+    "nIf" -> 4,
+    "nVarAssign" -> 4,
+    "nIntegerCol" -> 1,
+    "nFloatingPointCol" -> 1,
+    "nFixedPointCol" -> 1,
+    "nCharacterCol" -> 1,
+    "nDatetimeCol" -> 1,
   )
 
   val queryTypes = scala.collection.immutable.Map(
@@ -132,9 +169,10 @@ object PostgresParser {
     return (listener.getFeatureMap().asScala)
   }
 
-  def getInfo(input: String): (Map[String, Integer], Map[String, Integer], String) = {
+  def getInfo(input: String): (Map[String, Integer], Map[String, Integer], Int, String, String) = {
     var rules = Map[String, Integer]()
     var attributes = Map[String, Integer]()
+    var score = 0
     var queryType: String = null
     var error: String = null
     try {
@@ -154,12 +192,13 @@ object PostgresParser {
         } else {
           attributes(featureName) = ruleCount
         }
+        score += featureWeights(featureName) * ruleCount
       }
       if (queryType == null && queryTypes.keySet.exists(_ == ruleName)) {
         queryType = queryTypes(ruleName)
       }
     }
 
-    return (attributes, rules, queryType)
+    return (attributes, rules, score, queryType, error)
   }
 }
