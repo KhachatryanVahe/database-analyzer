@@ -59,6 +59,30 @@ object Processing {
     (df)
   }
 
+  def getObjects(
+      host: String,
+      port: String,
+      db: String,
+      user: String,
+      password: String,
+      query: String
+  ): DataFrame = {
+    val spark = SparkHelper.getSpark()
+    var postgresConnection = connnectToPostgres(host, port, db, user, password)
+    postgresConnection.createStatement().executeUpdate(Constants.createTableDefinitionGetterFunction)
+    val df = spark.read
+      .format("jdbc")
+      .option("url", s"jdbc:postgresql://$host:$port/$db")
+      .option("user", user)
+      .option("password", password)
+      .option("dbTable", s"($query) as que")
+      .option("driver", "org.postgresql.Driver")
+      .load()
+    // TODO: fix asynchronous loading of dataframe and after that uncomment next line
+    // postgresConnection.createStatement().executeUpdate(Constants.dropTableDefinitionGetterFunction)
+    (df)
+  }
+
   def addInfoColumns(queriesDF: DataFrame, queryField: String): DataFrame = {
     val spark = SparkHelper.getSpark()
     spark.sql("set spark.sql.legacy.allowUntypedScalaUDF = true")
@@ -88,7 +112,17 @@ object Processing {
     val user = sys.env("DB_USER")
     val password = sys.env("DB_PASSWORD")
 
-    var df = getQueries(
+    var objectsDF = getObjects(
+      host,
+      port,
+      db,
+      user,
+      password,
+      Constants.getObjectsListQuery
+    )
+    objectsDF.show()
+
+    var queriesDF = getQueries(
       host,
       port,
       db,
@@ -96,8 +130,7 @@ object Processing {
       password,
       "SELECT query, calls, mean_exec_time FROM pg_stat_statements"
     )
-    df.show()
-    df = addInfoColumns(df, "query")
-    df.show()
+    queriesDF = addInfoColumns(queriesDF, "query")
+    queriesDF.show()
   }
 }
